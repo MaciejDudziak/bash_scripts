@@ -1,0 +1,45 @@
+#!/bin/bash
+
+if [ "$#" -ne 2 ]; then
+    echo "Uzycie: $0 <katalog_z_dowiazaniami> <plik_logow>"
+    exit 1
+fi
+
+katalog="$1"
+plik_logow="$2"
+
+if [ ! -f "$plik_logow" ]; then
+echo "Bląd: Plik '$plik_logow' nie istnieje lub nie jest plikiem zwyklym."
+exit 1
+fi
+
+if [ ! -r "$plik_logow" ] || [ ! -w "$plik_logow" ]; then
+echo "Bląd: Brak praw do odczytu i zapisu do pliku '$plik_logow'."
+exit 1
+fi
+
+if [ ! -r "$katalog" ] || [ ! -w "$katalog" ] || [ ! -x "$katalog" ]; then
+echo "Bląd: Brak praw do odczytu, zapisu i wykonywania w katalogu '$katalog'."
+exit 1
+fi
+
+if [ -n "$(find $katalog -type l)" ]; then
+	for arg in `find $katalog -type l`; do
+		if [ ! -w "$arg" ]; then
+		echo "Czy chcesz usunac dowiazanie: $arg? (T/N)"
+		read decyzja
+		if [ "$decyzja" = "T" ] || [ "$decyzja" = "t" ]; then
+			echo "$arg" >> "$plik_logow"
+			rm $arg
+			echo "Dowiazanie $arg zostalo usuniete."
+		else
+			echo "Dowiazanie $arg nie zostalo usuniete."
+		fi
+		fi
+	done
+
+	echo "Program zakonczyl dzialanie"
+else
+	echo "Katalog nie zawiera dowiazan symbolicznych"
+	exit
+fi

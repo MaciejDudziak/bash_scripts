@@ -1,0 +1,29 @@
+#!/bin/bash
+
+if [ "$#" -lt 2 ]; then
+    echo "Użycie: $0 <numeryczne_prawa_dostępu> <plik1> <plik2> ..."
+    exit 1
+fi
+
+if ! [[ "$1" =~ ^[0-7]{3}$ ]]; then
+    echo "Błąd: Pierwszy parametr powinien być numerycznym zapisem praw dostępu składającym się z trzech cyfr (0-7)."
+    exit 1
+fi
+
+permissions="$1"
+
+for file in "${@:2}"; do
+    if [ ! -e "$file" ]; then
+        echo "Błąd: Plik lub katalog '$file' nie istnieje."
+        continue
+    fi
+
+    if [ ! -w "$file" ]; then
+        echo "Błąd: Brak uprawnień do modyfikacji pliku lub katalogu '$file'."
+        continue
+    fi
+
+    chmod "$permissions" "$file"
+    echo "Prawa dostępu dla '$file' zostały zmienione na $permissions."
+done
+

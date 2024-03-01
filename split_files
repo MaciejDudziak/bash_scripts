@@ -1,0 +1,41 @@
+#!/bin/bash
+
+if [ "$#" -ne 3 ]; then
+    echo "Użycie: $0 <plikIN> <plik1> <plik2>"
+    exit 1
+fi
+
+plikIN="$1"
+plik1="$2"
+plik2="$3"
+
+for arg in $@; do
+    if [ ! -f "$arg" ]; then
+	echo "Błąd: Plik "$arg" nie istnieje lub nie jest plikiem zwykłym."
+	exit 1
+    fi
+done
+   
+if [ ! -r "$plikIN" ]; then
+	echo "Błąd: Brak praw do odczytu pliku źródłowego $plikIN."
+	exit 1
+fi
+
+for arg in "${@:2}"; do
+if [ ! -w "$arg" ]; then
+	echo "Błąd: Brak praw do zapisu do pliku wynikowego "$arg"."
+	exit 1
+fi
+done
+
+while IFS= read -r linia; do
+	((numer_lini++))
+	if [ $((numer_lini % 2)) -eq 0 ]; then
+		echo "$numer_lini $linia" >> $plik2
+	else
+		echo "$numer_lini $linia" >> $plik1
+	fi
+done < $plikIN
+
+echo "Pliki zostały rozdzielone pomyślnie."
+
